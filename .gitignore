@@ -1,0 +1,7 @@
+# RAG
+logs/
+input/
+tmp/
+
+# Python
+__pycache__/
