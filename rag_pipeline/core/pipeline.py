@@ -8,6 +8,7 @@ is responsible for invoking the following stages:
 1. Localization: retrieve the input data source (e.g., clone a Git repo).
 2. Chunking: parse and segment documents into semantically meaningful chunks.
 3. Embedding: generate vector embeddings for the produced chunks.
+4. Store: writes embeddings to the vector store.
 
 """
 
@@ -29,18 +30,21 @@ class Pipeline:
             is for Jupyter Notebooks.
         embedder: Component responsible for generating vector embeddings
             from document chunks.
+        store: Component responsible for writing embeddings to a vector store.
     """
 
     localizer: any
     chunker: any
     embedder: any
+    store: any
 
     def run(self):
         try:
             logger.info("Begin execution of RAG pipeline.")
             self.localizer.localize()
             chunks = self.chunker.chunk()
-            self.embedder.embed(chunks)
+            embeddings =self.embedder.embed(chunks)
+            self.store.write(embeddings)
         except:
             logger.exception("Failed RAG pipeline execution.")
         finally:

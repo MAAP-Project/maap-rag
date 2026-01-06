@@ -5,3 +5,6 @@ tmp/
 
 # Python
 __pycache__/
+
+# Env
+.env

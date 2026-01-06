@@ -16,8 +16,8 @@ Behavior:
 import nbformat
 from pathlib import Path
 import re
-import os
 import logging
+import uuid
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -35,7 +35,7 @@ class NotebookChunker:
         chunks = []
         notebook_paths = self._get_notebook_paths()
         for notebook_path in notebook_paths:
-            chunks.append(self._chunk_notebook(notebook_path))
+            chunks.extend(self._chunk_notebook(notebook_path))
         return chunks
 
 
@@ -142,6 +142,7 @@ class NotebookChunker:
                     Document(
                         page_content="\n\n".join(markdown_parts),
                         metadata={
+                            "chunk_id": str(uuid.uuid4()),
                             "source": str(notebook_path),
                             "section": section["heading"],
                             "type": "markdown"
@@ -154,6 +155,7 @@ class NotebookChunker:
                     Document(
                         page_content="\n\n".join(code_parts),
                         metadata={
+                            "chunk_id": str(uuid.uuid4()),
                             "source": str(notebook_path),
                             "section": section["heading"],
                             "type": "code",
@@ -179,7 +181,9 @@ class NotebookChunker:
         for doc in docs:
             # Only split if needed
             if len(doc.page_content) > 1000:
+                # TODO mlucas: add chunk_id to newly-created chunks
                 final_docs.extend(splitter.split_documents([doc]))
             else:
                 final_docs.append(doc)
+
         return final_docs
